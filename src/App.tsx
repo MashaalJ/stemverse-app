@@ -7,7 +7,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/stemverse-app">
       <UserProvider>
         <div className="min-h-screen bg-gray-100">
           <Routes>

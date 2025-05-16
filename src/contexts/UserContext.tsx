@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { UserState, Badge } from '../types';
 
+const STORAGE_KEY = 'stemverse_user';
+
 // Default user state
 const defaultUserState: UserState = {
   xp: 0,
@@ -30,26 +32,22 @@ const UserContext = createContext<{
 // Provider component
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [userState, setUserState] = useState<UserState>(() => {
-    const savedState = localStorage.getItem('userState');
-    return savedState ? JSON.parse(savedState) : defaultUserState;
-  });
-
-  // Load user state from localStorage on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem('stemverse_user');
-    if (storedUser) {
-      try {
-        setUserState(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse user data:', error);
-        localStorage.removeItem('stemverse_user');
-      }
+    try {
+      const savedState = localStorage.getItem(STORAGE_KEY);
+      return savedState ? JSON.parse(savedState) : defaultUserState;
+    } catch (error) {
+      console.error('Failed to load user state:', error);
+      return defaultUserState;
     }
-  }, []);
+  });
 
   // Save to localStorage whenever user state changes
   useEffect(() => {
-    localStorage.setItem('userState', JSON.stringify(userState));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
+    } catch (error) {
+      console.error('Failed to save user state:', error);
+    }
   }, [userState]);
 
   const value = { userState, setUserState };
